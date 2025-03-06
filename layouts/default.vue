@@ -12,7 +12,9 @@
         <v-list-item
           v-for="(item, i) in items"
           :key="`main${i}`"
-          :to="item.to"
+          :href="'href' in item ? item.href : undefined"
+          :target="'href' in item ? '_blank' : undefined"
+          :to="!('href' in item) ? item.to : undefined"
           router
           exact
         >
@@ -34,7 +36,9 @@
         <v-list-item
           v-for="(item, i) in adminItems"
           :key="`main${i}`"
-          :to="item.to"
+          :href="'href' in item ? item.href : undefined"
+          :target="'href' in item ? '_blank' : undefined"
+          :to="!('href' in item) ? item.to : undefined"
           router
           exact
         >
@@ -56,7 +60,9 @@
         <v-list-item
           v-for="(item, i) in footerItems"
           :key="`footer${i}`"
-          :to="item.to"
+          :href="'href' in item ? item.href : undefined"
+          :target="'href' in item ? '_blank' : undefined"
+          :to="!('href' in item) ? item.to : undefined"
           router
           exact
         >
@@ -96,9 +102,40 @@
         <v-icon style="color: red">mdi-alpha-a-circle</v-icon>
       </v-btn>
       <v-btn v-if="$auth.loggedIn" class="primary" @click="logout()"
-        >Logout</v-btn
+        >Logout&nbsp;<v-icon small>mdi-logout</v-icon></v-btn
       >
-      <v-btn v-else class="primary" nuxt @click="login()">Login</v-btn>
+      <v-menu v-else
+        open-on-click
+        bottom
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="primary"
+            v-bind="attrs"
+            v-on="on"
+          >
+            Login&nbsp;<v-icon small>mdi-login</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list>
+          <v-list-item>
+            <v-btn class="primary" nuxt @click="gitHubLogin()">
+              GitHub&nbsp;<v-icon small>mdi-github</v-icon>
+            </v-btn>
+          </v-list-item>
+          <v-list-item>
+            <v-btn class="primary" nuxt @click="googleLogin()">
+              Google&nbsp;<v-icon small>mdi-google</v-icon>
+            </v-btn>
+          </v-list-item>
+          <v-list-item>
+            <v-btn class="primary" nuxt @click="cilogonLogin()">
+              CILogon&nbsp;<v-icon small>mdi-login</v-icon>
+            </v-btn>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <v-main>
       <v-container>
@@ -110,7 +147,7 @@
         >&copy; {{ new Date().getFullYear() }} - SEARCCH is supported by the
         National Science Foundation under Grant Numbers 1925773, 1925616,
         1925588, 1925564</span
-      ><v-spacer></v-spacer>
+      >
       <v-btn
         color="error"
         dark
@@ -137,6 +174,9 @@ export default {
       title: 'SEARCCH Hub'
     }
   },
+  mounted() {
+    this.miniVariant = window.innerWidth < 992;
+  },
   computed: {
     ...mapState({
       userid: state => state.user.userid,
@@ -156,6 +196,11 @@ export default {
           icon: 'mdi-table-heart',
           title: 'Favorite Artifacts',
           to: '/favorites'
+        })
+        items.push({
+          icon: 'mdi-box',
+          title: 'My Artifacts',
+          to: '/myartifacts'
         })
         items.push({
           icon: 'mdi-database-import',
@@ -198,6 +243,11 @@ export default {
           title: 'Importer Status',
           to: '/admin/importers'
         })
+        adminItems.push({
+          icon: 'mdi-wrench',
+          title: 'Claims',
+          to: '/admin/claims'
+        })
       }
       return adminItems
     },
@@ -209,8 +259,13 @@ export default {
           to: '/'
         },
         {
+          icon: 'mdi-information',
+          title: 'Best Practices',
+          href: 'https://searcch.cyberexperimentation.org/best-practices'
+        },
+        {
           icon: 'mdi-frequently-asked-questions',
-          title: 'FAQs',
+          title: 'FAQ',
           to: '/faqs'
         }
       ]
@@ -218,8 +273,14 @@ export default {
     }
   },
   methods: {
-    async login() {
+    async gitHubLogin() {
       let response = await this.$auth.loginWith('github')
+    },
+    async googleLogin() {
+      let response = await this.$auth.loginWith('googlecustom')
+    },
+    async cilogonLogin() {
+      let response = await this.$auth.loginWith('cilogon')
     },
     async logout() {
       if (confirm('Log out of SEARCCH?')) {
@@ -250,3 +311,18 @@ export default {
   }
 }
 </script>
+
+<style>
+  .v-footer {
+    flex-wrap: nowrap;
+    z-index: 9;
+    justify-content: space-between;
+  }
+
+  @media screen and (max-width: 992px) {
+    .v-footer {
+      flex-direction: column;
+      position: relative;
+    }
+  }
+</style>

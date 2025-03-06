@@ -7,6 +7,8 @@ export const state = () => ({
   user_is_admin: false,
   organization: [],
   orgs: [],
+  badges: [],
+  venues: [],
   user_token: null,
   interests: null
 })
@@ -20,6 +22,12 @@ export const getters = {
   },
   orgs: state => {
     return state.orgs
+  },
+  badges: state => {
+    return state.badges
+  },
+  venues: state => {
+    return state.venues
   },
   name: state => {
     return state.user.name
@@ -72,6 +80,12 @@ export const mutations = {
   SET_ORGS(state, orgs) {
     state.orgs = orgs
   },
+  SET_BADGES(state, badges) {
+    state.badges = badges
+  },
+  SET_VENUES(state, venues) {
+    state.venues = venues
+  },
   SET_INTERESTS(state, interests) {
     state.interests = interests
   },
@@ -79,6 +93,8 @@ export const mutations = {
     state.user = null
     state.organization = []
     state.orgs = []
+    state.badges = []
+    state.venues = []
     state.interests = null
     state.user_token = null
     state.userid = null
@@ -117,6 +133,36 @@ export const actions = {
     response = await this.$organizationEndpoint.index(payload)
     if (typeof response !== 'undefined' && response.organizations) {
       commit('SET_ORGS', response.organizations)
+    }
+  },
+  async fetchBadges({ commit, state }) {
+    if (typeof state.badges === 'object' && state.badges.length > 0) {
+      return
+    }
+    let response = {}
+    console.log('fetching badges')
+    let payload = {
+      verified: 1,
+      all: 1
+    }
+    response = await this.$badgesEndpoint.index(payload)
+    if (typeof response !== 'undefined' && response.badges) {
+      commit('SET_BADGES', response.badges)
+    }
+  },
+  async fetchVenues({ commit, state }) {
+    if (typeof state.venues === 'object' && state.venues.length > 0) {
+      return
+    }
+    let response = {}
+    console.log('fetching venues')
+    let payload = {
+      verified: 1,
+      all: 1
+    }
+    response = await this.$venuesEndpoint.index(payload)
+    if (typeof response !== 'undefined' && response.venues) {
+      commit('SET_VENUES', response.venues)
     }
   },
   async fetchInterests({ commit, state }) {

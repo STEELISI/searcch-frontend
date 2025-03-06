@@ -11,15 +11,40 @@ const renameKeys = (keysMap, obj) =>
       )
     : obj
 
+const search_advanced_defaults = {
+  types: ['dataset', 'presentation', 'publication', 'software', 'other'],
+  author: '',
+  org: '',
+  badge_ids: [],
+  venue_ids: [],
+  sort_criteria: '',
+  sort_type: 'desc',
+}
+
 export const state = () => ({
-  artifacts: [],
+  artifacts: {
+    artifacts: [],
+    pages: 0,
+    total: 0
+  },
   artifact: {},
+  myArtifacts: {
+    owned_artifacts: [],
+  },
   search: '',
+  search_advanced_enabled: true,
+  search_advanced_isopen: false,
+  search_advanced: JSON.parse(JSON.stringify(search_advanced_defaults)),
   favorites: [],
   favoritesIDs: {},
-  imports: [],
+  imports: {
+    artifact_imports: [],
+    pages: 0,
+    total: 0
+  },
   import: {},
-  loading: false
+  loading: false,
+  artifactClaim: {}
 })
 
 export const getters = {
@@ -29,8 +54,17 @@ export const getters = {
   artifact: state => {
     return state.artifact
   },
+  myArtifacts: state => {
+    return state.myArtifacts
+  },
   search: state => {
     return state.search
+  },
+  search_advanced_enabled: state => {
+    return state.search_advanced_enabled
+  },
+  search_advanced: state => {
+    return state.search_advanced
   },
   favorites: state => {
     return state.favorites
@@ -46,6 +80,9 @@ export const getters = {
   },
   loading: state => {
     return state.loading
+  },
+  artifactClaim: state => {
+    return state.artifactClaim
   }
 }
 
@@ -53,11 +90,42 @@ export const mutations = {
   SET_ARTIFACTS(state, artifacts) {
     state.artifacts = artifacts
   },
+  RESET_ARTIFACTS(state) {
+    state.artifacts = {
+      artifacts: [],
+      pages: 0,
+      total: 0
+    }
+  },
   SET_ARTIFACT(state, artifact) {
     state.artifact = artifact
   },
   SET_SEARCH(state, search) {
     state.search = search
+  },
+  SET_SEARCH_ADVANCED(state, search_advanced) {
+    state.search_advanced = search_advanced
+    if (!search_advanced)
+      state.search_advanced_enabled = false
+    if (JSON.stringify(state.search_advanced) === JSON.stringify(search_advanced_defaults))
+      state.search_advanced_isopen = false
+    else
+      state.search_advanced_isopen = true
+  },
+  RESET_SEARCH(state) {
+    state.search = ''
+    state.search_advanced_enabled = false
+    state.search_advanced = {
+      types: ['dataset', 'presentation', 'publication', 'software', 'other'],
+      author: '',
+      org: '',
+      badge_ids: [],
+      sort_criteria: '',
+      sort_type: 'desc',
+    }
+  },
+  SET_MY_ARTIFACTS(state, myArtifacts) {
+    state.myArtifacts = myArtifacts
   },
   SET_FAVORITES(state, favorites) {
     state.favorites = favorites
@@ -76,27 +144,67 @@ export const mutations = {
   },
   SET_LOADING(state, loading) {
     state.loading = loading
+  },
+  SET_ARTIFACT_CLAIM(state, artifactClaim) {
+    state.artifactClaim = artifactClaim
   }
 }
 
 export const actions = {
-  async fetchArtifacts({ commit, state }, payload) {
+  async fetchArtifacts({ commit, state }, { payload, advanced }) {
     commit('SET_LOADING', true)
+    commit('RESET_SEARCH')
     commit('SET_SEARCH', payload.keywords)
-    let response = await this.$artifactSearchEndpoint.index({
-      ...payload
-    })
-    if (typeof response !== 'undefined' && response.artifacts) {
-      commit('SET_ARTIFACTS', response.artifacts)
+    commit('SET_SEARCH_ADVANCED', { ...advanced })
+    let response = await this.$artifactSearchEndpoint.index(payload)
+    if (typeof response !== 'undefined') {
+      commit('SET_ARTIFACTS', response)
+    }
+    commit('SET_LOADING', false)
+  },
+  async fetchMyArtifacts({ commit }) {
+    commit('SET_LOADING', true)
+    let response = await this.$userArtifactsEndpoint.index()
+    console.log(response)
+    if (response !== undefined) {
+      commit('SET_MY_ARTIFACTS', response)
+    }
+    commit('SET_LOADING', false)
+  },
+  async fetchRelatedArtifacts({ commit, dispatch, state }, payload) {
+    commit('SET_LOADING', true)
+    // fetch user artifacts first
+    await dispatch('fetchMyArtifacts')
+    if (!state.artifacts.length) {
+      // recommend artifacts if the user has no artifact
+      let response = await this.$artifactRecommendationEndpoint.show(
+          [ payload.artifact_group_id, payload.id])
+      if (response !== undefined) {
+        commit('SET_ARTIFACTS', response.artifacts)
+      }
     }
     commit('SET_LOADING', false)
   },
   async fetchArtifact({ commit, state }, payload) {
     commit('SET_LOADING', true)
-    console.log('fetching entry ' + payload.id)
-    let response = await this.$artifactEndpoint.show(payload.id)
+    console.log('fetching entry ' + payload.artifact_group_id + "/" + payload.id)
+    var ids = payload.artifact_group_id
+    if (payload.id) {
+        ids = [ payload.artifact_group_id, payload.id ]
+    }
+    let response = await this.$artifactEndpoint.show(ids)
     if (typeof response !== 'undefined') {
       commit('SET_ARTIFACT', response)
+    }
+    commit('SET_LOADING', false)
+  },
+  async fetchArtifactClaim({ commit, state }, payload) {
+    commit('SET_LOADING', true)
+    console.log('fetching claim ' + payload.artifact_group_id)
+    var id = payload.artifact_group_id
+    let response = await this.$artifactClaimEndpoint.show(id)
+    if (typeof response !== 'undefined') {
+      commit('SET_ARTIFACT_CLAIM', response)
     }
     commit('SET_LOADING', false)
   },
@@ -106,7 +214,7 @@ export const actions = {
     if (typeof response !== 'undefined' && response.artifacts) {
       commit('SET_FAVORITES', response.artifacts)
       for (let fav in response.artifacts) {
-        commit('ADD_FAVORITE', response.artifacts[fav].id)
+        commit('ADD_FAVORITE', response.artifacts[fav].artifact_group_id)
       }
     }
     commit('SET_LOADING', false)
@@ -117,7 +225,7 @@ export const actions = {
       ...payload
     })
     if (typeof response !== 'undefined' && response.artifact_imports) {
-      commit('SET_IMPORTS', response.artifact_imports)
+      commit('SET_IMPORTS', response)
     }
     commit('SET_LOADING', false)
   },
@@ -131,12 +239,13 @@ export const actions = {
   },
   async setRelated({ commit, state, dispatch }, payload) {
     commit('SET_LOADING', true)
+    console.log(payload)
     let response = await this.$relationshipsEndpoint.create({
-      artifact_id: state.artifact.artifact.id,
-      related_artifact_id: payload.id,
+      artifact_group_id: state.artifact.artifact.artifact_group_id,
+      related_artifact_group_id: payload.id,
       relation: payload.relation
     })
-    dispatch('fetchArtifact', { id: state.artifact.artifact.id })
+      dispatch('fetchArtifact', { artifact_group_id: state.artifact.artifact.artifact_group_id, id: state.artifact.artifact.id })
     commit('SET_LOADING', false)
   }
 }

@@ -10,10 +10,21 @@ export default (ctx, inject) => {
   // artifact retrieval
   inject('artifactEndpoint', repositoryWithAxios('kg/' + 'artifact'))
 
+  //artifact claim retrieval
+  inject('artifactClaimEndpoint', repositoryWithAxios('kg/' + 'artifact/request/owner'))
+
+  //admin artifact claims retrieval
+  inject('adminArtifactClaimEndpoint', repositoryWithAxios('kg/' + 'artifact/requests/owner'))
+
   // artifact searching
   inject(
     'artifactSearchEndpoint',
     repositoryWithAxios('kg/' + 'artifact/search')
+  )
+
+  inject(
+    'artifactRecommendationEndpoint',
+    repositoryWithAxios('kg/' + 'artifact/recommendation')
   )
 
   // imports array view/add API
@@ -34,8 +45,23 @@ export default (ctx, inject) => {
     repositoryWithAxios('kg/' + 'artifact/relationship')
   )
 
+  // compare artifacts
+  inject(
+    'artifactCompareEndpoint',
+    repositoryWithAxios('kg/' + 'artifact/compare')
+  )
+
+  // candidate artifacts
+  inject(
+    'candidateArtifactEndpoint',
+    repositoryWithAxios('kg/' + 'candidate/artifact')
+  )
+
   // badges
   inject('badgesEndpoint', repositoryWithAxios('kg/' + 'badges'))
+
+  // venues
+  inject('venuesEndpoint', repositoryWithAxios('kg/' + 'venues'))
 
   // licenses
   inject('licenseEndpoint', repositoryWithAxios('kg/' + 'licenses'))
@@ -60,6 +86,9 @@ export default (ctx, inject) => {
 
   // user API
   inject('userEndpoint', repositoryWithAxios('kg/' + 'user'))
+
+  // admin update privilege API
+  inject('adminUpdateUserEndpoint', repositoryWithAxios('kg/' + 'admin/user'))
 
   // user owned artifacts API
   inject('userArtifactsEndpoint', repositoryWithAxios('kg/' + 'user/artifacts'))
@@ -96,4 +125,7 @@ export default (ctx, inject) => {
 
   // sessions index API
   inject('sessionsEndpoint', repositoryWithAxios('kg/' + 'sessions'))
+
+  // user optout API
+  inject('optOutEndpoint', repositoryWithAxios('/kg' + '/email/opt_out'))
 }

@@ -11,10 +11,7 @@ WORKDIR /app
 COPY . /app
 
 # install the application
-RUN npm install
-
-# build the server and other required stuff
-RUN npm run build
+RUN npm install cross-env
 
 # nuxt server listens on localhost by default
 ENV NUXT_HOST=0.0.0.0
@@ -22,4 +19,5 @@ ENV NUXT_HOST=0.0.0.0
 # Expose the port 3000 used by nuxt
 EXPOSE 3000
 
-CMD ["node", "/app/node_modules/.bin/nuxt", "start"]
+# Run the dev-any env, which listens on 0.0.0.0
+CMD ["npm", "run", "dev-any"]

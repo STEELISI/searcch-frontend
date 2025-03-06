@@ -135,7 +135,6 @@
 
 <script>
 import { mapState } from 'vuex'
-import { artifactIcon, artifactColor } from '@/helpers'
 import $RefParser from 'json-schema-ref-parser'
 import schemaWithPointers from '~/schema/affiliation.json'
 
@@ -229,16 +228,11 @@ export default {
     })
   },
   methods: {
-    iconColor(type) {
-      return artifactColor(type)
-    },
-    iconImage(type) {
-      return artifactIcon(type)
-    },
     profileImage(email) {
-      if (typeof this.githubUser !== 'undefined') {
-        if (this.githubUser.avatar_url.length > 0) {
-          return this.githubUser.avatar_url + '&size=130'
+      if (typeof this.authUser !== 'undefined') {
+        if (typeof this.authUser.avatar_url !== 'undefined'
+            && this.authUser.avatar_url.length > 0) {
+          return this.authUser.avatar_url + '&size=130'
         }
       }
       var md5 = require('md5')

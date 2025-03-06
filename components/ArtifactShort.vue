@@ -1,22 +1,22 @@
 <template>
   <div>
     <v-card class="mx-auto overflow-hidden" elevation="3">
-      <v-row>
-        <v-col cols="10">
-          <v-card-title class="align-start">
-            <div>
+      <v-container>
+        <v-row>
+          <v-col cols="9">
+            <v-card-title class="align-start">
               <span class="headline">{{ artifact.title | titlecase }}</span>
-            </div>
-          </v-card-title>
-        </v-col>
-        <v-col cols="2" class="text-lg-right">
-          <ArtifactChips
-            :field="[artifact.type]"
-            :type="artifact.type"
-          ></ArtifactChips>
-        </v-col>
-      </v-row>
-
+            </v-card-title>
+          </v-col>
+          <v-col cols="3">
+            <ArtifactChips
+              class="card-chip"
+              :field="[artifact.type]"
+              :type="artifact.type"
+            ></ArtifactChips>
+          </v-col>
+        </v-row>
+      </v-container>
       <span class="ml-4 grey--text text--darken-2 font-weight-light caption">
         {{ artifact.num_reviews }}
         {{ artifact.num_reviews == 1 ? 'review' : 'reviews' }}
@@ -72,11 +72,23 @@
         <v-btn
           icon
           v-if="!related"
-          :to="`/artifact/review/${artifact.id}`"
+          :to="`/artifact/review/${artifact.artifact_group_id}`"
           nuxt
         >
           <v-icon>mdi-comment</v-icon>
         </v-btn>
+        <span style="padding: 0 5 0 5; font-weight bold;" v-if="contributionTypeText"> | </span>
+        <v-chip
+          class="ma-2"
+          cols="12"
+          label
+          :color="getContributionChipColor()"
+          v-if="contributionTypeText">
+          <v-avatar left>
+            <v-icon>mdi-check-circle</v-icon>
+          </v-avatar>
+          <span style="font-weight: normal;">{{ contributionTypeText }}</span>
+        </v-chip>
 
         <v-spacer></v-spacer>
         <v-select
@@ -88,7 +100,7 @@
         <v-btn
           v-if="!related"
           color="primary"
-          :to="`/artifact/${artifact.id}`"
+          :to="getArtifactLink()"
           nuxt
         >
           Read More
@@ -96,15 +108,23 @@
         <v-btn
           v-else
           color="success"
-          @click="addRelated(artifact.id, relation)"
+          @click="addRelated(artifact.artifact_group_id, relation)"
           :disabled="relation.length == 0"
         >
           Add Related
         </v-btn>
         <v-btn
-          v-if="isOwner()"
+          v-if="isOwner() || isAdmin()"
           color="success"
-          :to="`/artifact/${artifact.id}?edit=true`"
+          :to="`/artifact/${artifact.artifact_group_id}/${artifact.id}?edit_relation=true`"
+          nuxt
+        >
+          Edit Relation
+        </v-btn>
+        <v-btn
+          v-if="(isOwner() && isDraft()) || isAdmin()"
+          color="success"
+          :to="`/artifact/${artifact.artifact_group_id}/${artifact.id}?edit=true`"
           nuxt
         >
           Edit
@@ -117,7 +137,7 @@
 <script>
 import clip from 'text-clipper'
 import { mapState } from 'vuex'
-import { artifactIcon, artifactColor, EventBus } from '@/helpers'
+import { EventBus } from '@/helpers'
 
 export default {
   props: {
@@ -173,13 +193,28 @@ export default {
     },
     favorite: {
       get() {
-        return this.favorites[this.artifact.id] ? true : false
+        return this.favorites[this.artifact.artifact_group_id] ? true : false
       },
       set(value) {
         if (value)
-          this.$store.commit('artifacts/ADD_FAVORITE', this.artifact.id)
-        else this.$store.commit('artifacts/REMOVE_FAVORITE', this.artifact.id)
+          this.$store.commit('artifacts/ADD_FAVORITE', this.artifact.artifact_group_id)
+        else this.$store.commit('artifacts/REMOVE_FAVORITE', this.artifact.artifact_group_id)
       }
+    },
+    contributionTypeText() {
+      if (this.artifact === undefined) {
+        return false;
+      }
+      if (this.artifact.artifact_group.owner_id == this.userid) {
+        return 'owner';
+      }
+      if(this.artifact.owner.id != this.userid) {
+        return false;
+      }
+      if (this.isDraft()) {
+        return 'draft';
+      }
+      return 'contributor';
     }
   },
   methods: {
@@ -191,37 +226,78 @@ export default {
         this.favorite = !this.favorite
         if (action) {
           // FIXME: backend API
-          await this.$favoritesEndpoint.post(this.artifact.id, {})
+          await this.$favoritesEndpoint.post(this.artifact.artifact_group_id, {})
         } else {
-          await this.$favoritesEndpoint.delete(this.artifact.id)
+          await this.$favoritesEndpoint.delete(this.artifact.artifact_group_id)
         }
       }
     },
-    iconColor(type) {
-      return artifactColor(type)
-    },
-    iconImage(type) {
-      return artifactIcon(type)
+    getArtifactLink() {
+      if(this.artifact === undefined) {
+        return;
+      }
+      if (this.artifact.artifact_group !== undefined
+          && this.artifact.artifact_group.publication !== undefined
+          && this.artifact.artifact_group.publication !== null
+          && this.artifact.artifact_group.publication.artifact_id == this.artifact.id) {
+        return `/artifact/${this.artifact.artifact_group_id}`;
+      } else {
+        return `/artifact/${this.artifact.artifact_group_id}/${this.artifact.id}`;
+      }
     },
     addRelated(id, relation) {
+      console.log(this.artifact)
       this.$store.dispatch('artifacts/setRelated', {
         id: id,
         relation: relation
       })
       EventBus.$emit('close', 'artifactdialog')
     },
+    isAdmin() {
+      this.user_is_admin
+    },
     isOwner() {
-      if (this.user_is_admin) return true
       return typeof this.artifact.owner !== 'undefined'
-        ? this.artifact.owner.id == this.userid
+        ? this.artifact.artifact_group.owner_id == this.userid
         : false
+    },
+    isDraft() {
+      let hasPublicationAttr = (this.artifact.artifact_group.publications !== undefined)
+      hasPublicationAttr && this.artifact.artifact_group.publications.forEach(publication => {
+        if (publication.artifact_id == this.artifact.id) {
+          return false;
+        }
+      });
+      return true;
+    },
+    getContributionChipColor() {
+      switch(this.contributionTypeText) {
+        case 'owner':
+          return 'green white--text';
+        case 'contributor':
+          return 'blue white--text';
+        case 'draft':
+          return 'orange white--text';
+        default:
+          return 'grey';
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+.card-chip {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
 .v-card__title {
   word-break: normal;
+}
+
+.headline {
+  align-self: center;
 }
 </style>
