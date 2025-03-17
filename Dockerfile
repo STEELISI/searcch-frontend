@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:16
 
 # create a directory for the application
 RUN mkdir /app
@@ -22,4 +22,4 @@ ENV NUXT_HOST=0.0.0.0
 # Expose the port 3000 used by nuxt
 EXPOSE 3000
 
-CMD ["npx", "/app/node_modules/.bin/nuxi", "start"]
+CMD ["node", "/app/node_modules/.bin/nuxt", "start"]

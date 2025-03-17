@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-row justify="start" align="start">
+  <span>
+    <v-layout column justify-left align-top>
       <v-row class="ml-1 mb-2">
         <h1>Importers</h1>
       </v-row>
@@ -10,19 +10,16 @@
         :importers="importers"
       ></ImporterList>
       <div v-else>{{ loadingMessage }}</div>
-    </v-row>
-  </v-container>
+    </v-layout>
+  </span>
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
-import { mapState } from 'pinia'
-import { userStore } from '~/stores/user'
-import { systemStore } from '~/stores/system'
+import { mapState } from 'vuex'
 
-export default defineComponent({
+export default {
   components: {
-    ImporterList: defineAsyncComponent(() => import('@/components/ImporterList'))
+    ImporterList: () => import('@/components/ImporterList')
   },
   data() {
     return {
@@ -32,7 +29,7 @@ export default defineComponent({
     }
   },
   async mounted() {
-    this.$userStore.fetchUser()
+    this.$store.dispatch('user/fetchUser')
     this.loadingMessage = 'Loading importers...'
     this.updateImporters()
     this.timeoutID = setTimeout(() => {
@@ -47,13 +44,15 @@ export default defineComponent({
     )
   },
   computed: {
-    ...mapState(systemStore, ['importers']),
-    ...mapState(userStore, ['user_is_admin'])
+    ...mapState({
+      user_is_admin: state => state.user.user_is_admin,
+      importers: state => state.system.importers
+    })
   },
   methods: {
     updateImporters() {
       if (this.user_is_admin) {
-        this.$systemStore.fetchImporters()
+        this.$store.dispatch('system/fetchImporters')
       }
       if (!this.importers || !this.importers.length) {
         //clearInterval(this.pollingID)
@@ -72,5 +71,5 @@ export default defineComponent({
     clearTimeout(this.timeoutID)
     next()
   }
-});
+}
 </script>

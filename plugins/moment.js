@@ -1,9 +1,3 @@
-import moment from 'moment'
+import Vue from 'vue'
 
-export default defineNuxtPlugin(() => {
-    return {
-        provide: {
-            moment
-        }
-    }
-});
+Vue.use(require('vue-moment'))

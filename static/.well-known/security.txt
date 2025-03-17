@@ -1,3 +1,0 @@
-Contacts: ['mailto:security@cyberexperimentation.org']
-Canonical: 'https://hub.cyberexperimentation.org/.well-known/security.txt'
-PreferredLanguages: ['en']

@@ -7,11 +7,11 @@
 </template>
 
 <script>
-export default defineComponent({
+export default {
   data() {
     return {
       data: {'Blueberry': 44, 'Strawberry': 23, 'Abc': 11, 'Def': 88}
     }
   }
-});
+}
 </script>

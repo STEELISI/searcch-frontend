@@ -1,34 +1,30 @@
 <template>
-  <v-container>
-    <v-row justify="center" align="center">
-      <v-col sm="12" md="10" lg="6">
+  <span>
+    <v-layout column justify-center align-center>
+      <v-flex xs12 sm8 md6>
         <div class="text-center">
           <logo />
         </div>
-      </v-col>
-    </v-row>
-    <v-row justify="start" align="start">
-      <v-col cols="12">
+      </v-flex>
+    </v-layout>
+    <v-layout column justify-left align-top>
+      <div class="my-artifacts-header">
         <h1>My Artifacts</h1>
         <v-divider></v-divider>
-      </v-col>
-      <v-col cols="12">
         <ArtifactList :artifacts="myArtifacts.owned_artifacts" :limit="limit"></ArtifactList>
         <span v-if="doArtifactsExist()">No artifacts yet</span>
-      </v-col>
-    </v-row>
-  </v-container>
+      </div>
+    </v-layout>
+  </span>
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
-import { mapState } from 'pinia'
-import { artifactsStore } from '~/stores/artifacts'
+import { mapState } from 'vuex'
 
-export default defineComponent({
+export default {
   components: {
-    Logo: defineAsyncComponent(() => import('@/components/Logo')),
-    ArtifactList: defineAsyncComponent(() => import('@/components/ArtifactList'))
+    Logo: () => import('@/components/Logo'),
+    ArtifactList: () => import('@/components/ArtifactList')
   },
   head() {
     return {
@@ -54,12 +50,20 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapState(artifactsStore, {
-      myArtifacts: state => state.myArtifacts
+    ...mapState({
+      myArtifacts: state => state.artifacts.myArtifacts
     })
   },
   async mounted() {
-    await this.$artifactsStore.fetchMyArtifacts()
+    await this.$store.dispatch('artifacts/fetchMyArtifacts')
   },
-});
+}
 </script>
+
+<style>
+
+  .my-artifacts-header {
+    margin-top: 20px;
+  }
+
+</style>

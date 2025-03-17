@@ -2,21 +2,23 @@
   <div>
     <v-form ref="search" @submit.prevent="onSubmit">
       <v-text-field
-        id="input-search-artifact"
-        append-inner-icon="mdi-magnify"
+        append-icon="mdi-magnify"
         label="Search"
         placeholder="Type search term..."
         v-model="search"
+        loading="true"
         clearable
         class="rounded-0"
         hide-details
         @keydown="onChange"
         @change="onSubmit"
+        solo
+        dense
       >
       </v-text-field>
       <v-expansion-panels v-model="adopen">
         <v-expansion-panel class="rounded-0">
-          <v-expansion-panel-title>
+          <v-expansion-panel-header>
             <template v-slot:default="{ open }">
               <v-row no-gutters>
                 <v-col cols="4">
@@ -31,13 +33,12 @@
                 </v-col>
               </v-row>
             </template>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
+          </v-expansion-panel-header>
+          <v-expansion-panel-content>
             <v-row align="center">
               <v-col cols="12">
                 <v-text-field
                   label="Author"
-                  id="input-filter-by-author"
                   placeholder="Search for artifacts by author name..."
                   v-model="advanced.author"
                 >
@@ -45,7 +46,6 @@
               </v-col>
               <v-col cols="12">
                 <v-text-field
-                  id="input-filter-by-organization"
                   label="Organization"
                   placeholder="Search for artifacts by organization name..."
                   v-model="advanced.org"
@@ -59,27 +59,31 @@
                   label="Artifact types"
                   multiple
                   class="rounded-0"
-                  persisent
+                  hide-details
                 >
                   <template v-slot:prepend-item>
-                    <v-list-item
-                      title="Select All"
-                      @click="toggleArtifactTypes"
-                    >
-                      <template v-slot:prepend>
-                        <v-checkbox-btn
-                          color="indigo-darken-4"
-                          :indeterminate="advanced.types.length > 0 && advanced.types.length < types.length"
-                          :model-value="advanced.types.length === types.length"
-                        ></v-checkbox-btn>
-                      </template>
+                    <v-list-item ripple @click="toggle">
+                      <v-list-item-action>
+                        <v-icon
+                          :color="
+                            advanced.types.length > 0 ? 'indigo darken-4' : ''
+                          "
+                        >
+                          {{ artifactTypeIcon }}
+                        </v-icon>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Select All
+                        </v-list-item-title>
+                      </v-list-item-content>
                     </v-list-item>
                     <v-divider class="mt-2"></v-divider>
                   </template>
                   <template v-slot:selection="{ item, index }">
-                    <span v-if="index === 0">{{ item.raw }}</span>
+                    <span v-if="index === 0">{{ item }}</span>
                     <span></span>
-                    <span v-if="index === 1" class="text-grey text-caption">
+                    <span v-if="index === 1" class="grey--text caption">
                       (+{{ advanced.types.length - 1 }} others)
                     </span>
                   </template>
@@ -97,30 +101,33 @@
                   hide-details
                 >
                   <template v-slot:prepend-item>
-                    <v-list-item
-                      title="Select All"
-                      @click="toggleBadges"
-                    >
-                      <template v-slot:prepend>
-                        <v-checkbox-btn
-                          color="indigo-darken-4"
-                          :indeterminate="advanced.badge_ids.length > 0 && advanced.badge_ids.length < badges.length"
-                          :model-value="advanced.badge_ids.length === badges.length"
-                        ></v-checkbox-btn>
-                      </template>
+                    <v-list-item ripple @click="toggleBadges">
+                      <v-list-item-action>
+                        <v-icon
+                          :color="
+                            advanced.badge_ids.length > 0 ? 'indigo darken-4' : ''
+                          "
+                        >
+                          {{ badgeIcon }}
+                        </v-icon>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Select All
+                        </v-list-item-title>
+                      </v-list-item-content>
                     </v-list-item>
                     <v-divider class="mt-2"></v-divider>
                   </template>
                   <template v-slot:selection="{ item, index }">
-                    <span v-if="index === 0">{{ `${item.raw.organization} ${item.raw.title}` }}</span>
+                    <span v-if="index === 0">{{ `${item.organization} ${item.title}` }}</span>
                     <span></span>
-                    <span v-if="index === 1" class="text-grey text-caption">
+                    <span v-if="index === 1" class="grey--text caption">
                       (+{{ advanced.badge_ids.length - 1 }} others)
                     </span>
                   </template>
-                  <template v-slot:item="{ item, props }">
-                    <v-list-item v-bind="props" :title="`${item.raw.organization} ${item.raw.title}`">
-                    </v-list-item>
+                  <template v-slot:item="{ item, index }">
+                    {{ `${item.organization} ${item.title}` }}
                   </template>
                 </v-select>
               </v-col>
@@ -136,24 +143,28 @@
                   hide-details
                 >
                   <template v-slot:prepend-item>
-                    <v-list-item
-                      title="Select All"
-                      @click="toggleVenues"
-                    >
-                      <template v-slot:prepend>
-                        <v-checkbox-btn
-                          color="indigo-darken-4"
-                          :indeterminate="advanced.venue_ids.length > 0 && advanced.venue_ids.length < venues.length"
-                          :model-value="advanced.venue_ids.length === venues.length"
-                        ></v-checkbox-btn>
-                      </template>
+                    <v-list-item ripple @click="toggleVenues">
+                      <v-list-item-action>
+                        <v-icon
+                          :color="
+                            advanced.venue_ids.length > 0 ? 'indigo darken-4' : ''
+                          "
+                        >
+                          {{ venueIcon }}
+                        </v-icon>
+                      </v-list-item-action>
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          Select All
+                        </v-list-item-title>
+                      </v-list-item-content>
                     </v-list-item>
                     <v-divider class="mt-2"></v-divider>
                   </template>
                   <template v-slot:selection="{ item, index }">
                     <span v-if="index === 0">{{ `${item.title}` }}</span>
                     <span></span>
-                    <span v-if="index === 1" class="text-grey text-caption">
+                    <span v-if="index === 1" class="grey--text caption">
                       (+{{ advanced.venue_ids.length - 1 }} others)
                     </span>
                   </template>
@@ -164,12 +175,12 @@
               </v-col>
 
               <v-col cols="12" sm ="8">
-                <v-select v-model="advanced.search_criteria" label="Sort Results" :items="['None','Date', 'View', 'Rating']" @update:model-value = "showOptions">
+                <v-select v-model="advanced.search_criteria" label="Sort Results" :items="['None','date', 'views', 'rating']" @change = "showOptions">
                 </v-select>
               </v-col>
               
               <v-col cols="12" sm="4">
-                <v-radio-group v-model="advanced.search_type" v-if="sortEnabled" @update:model-value="setSortType" row>
+                <v-radio-group v-model="advanced.search_type" v-if="sortEnabled" @change="setSortType" row>
                   <v-radio label="Ascending" value="asc"></v-radio>
                   <v-radio label="Descending" value="desc"></v-radio>
                 </v-radio-group>
@@ -184,8 +195,8 @@
                 </v-text-field>
               </v-col>
             </v-row>
-            <v-btn id="btn-advanced-search-submit" @click="onSubmit" class="bg-primary mt-3">Search</v-btn>
-          </v-expansion-panel-text>
+            <v-btn @click="onSubmit" class="primary mt-3">Search</v-btn>
+          </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
     </v-form>
@@ -195,7 +206,7 @@
       v-if="artifacts"
       v-model="page"
       :length="pages"
-      rounded
+      circle
     ></v-pagination>
     <ArtifactList
       :artifacts="artifacts"
@@ -210,27 +221,26 @@
     >
     <v-btn
       v-if="showScrollToTop != 0"
-      class="bg-secondary"
+      class="secondary"
       id="scrollbtn"
       @click="scrollToTop()"
       elevation="10"
-      ><v-icon size="large" color="lightblue">mdi-chevron-up</v-icon></v-btn
+      ><v-icon large color="lightblue">mdi-chevron-up</v-icon></v-btn
     >
   </div>
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
-import { mapState } from 'pinia'
-import { userStore } from '~/stores/user'
-import { artifactsStore } from '~/stores/artifacts'
+import { mapState } from 'vuex'
+import goTo from 'vuetify/es5/services/goto'
+import { getCookie } from '~/helpers'
 
 const deepClone = (obj) => JSON.parse(JSON.stringify(obj))
 
-export default defineComponent({
+export default {
   components: {
-    Logo: defineAsyncComponent(() => import('@/components/Logo')),
-    ArtifactList: defineAsyncComponent(() => import('@/components/ArtifactList'))
+    Logo: () => import('@/components/Logo'),
+    ArtifactList: () => import('@/components/ArtifactList')
   },
   props: {
     related: {
@@ -278,12 +288,12 @@ export default defineComponent({
   beforeMount() {
     window.addEventListener('scroll', this.handleScroll)
   },
-  beforeUnmount() {
+  beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll)
   },
   mounted() {
     if (this.related) {
-      this.$artifactsStore.fetchRelatedArtifacts(this.artifact)
+      this.$store.dispatch('artifacts/fetchRelatedArtifacts', this.artifact)
     } else if (this.$route.query.keywords) {
       this.search = this.$route.query.keywords
       console.log('keywords: ', this.search)
@@ -309,20 +319,23 @@ export default defineComponent({
       this.adopen = +(!this.search_advanced_isopen)
       this.sortEnabled = this.advanced.search_criteria !== ''
     }
-    this.$userStore.fetchBadges()
-    this.$userStore.fetchVenues()
+    this.$store.dispatch('user/fetchBadges')
+    this.$store.dispatch('user/fetchVenues')
   },
   computed: {
-    ...mapState(userStore, ['badges', 'venues', 'user_is_admin', 'user_can_admin']),
-    ...mapState(artifactsStore, {
-      artifacts: state => state.artifacts.artifacts,
-      artifact: state => state.artifact.artifact,
-      pages: state => state.artifacts.pages,
-      total: state => state.artifacts.total,
-      search_init: state => state.search,
-      search_advanced_init: state => state.search_advanced,
-      search_advanced_isopen: state => state.search_advanced_isopen,
-      searchLoading: state => state.loading
+    ...mapState({
+      badges: state => state.user.badges,
+      venues: state => state.user.venues,
+      artifacts: state => state.artifacts.artifacts.artifacts,
+      artifact: state => state.artifacts.artifact.artifact,
+      pages: state => state.artifacts.artifacts.pages,
+      total: state => state.artifacts.artifacts.total,
+      search_init: state => state.artifacts.search,
+      search_advanced_init: state => state.artifacts.search_advanced,
+      search_advanced_isopen: state => state.artifacts.search_advanced_isopen,
+      searchLoading: state => state.artifacts.loading,
+      user_is_admin: state => state.user.user_is_admin,
+      user_can_admin: state => state.user.user_can_admin,
     }),
     allArtifacts() {
       return this.advanced.types.length === this.types.length
@@ -367,9 +380,9 @@ export default defineComponent({
       this.submitted = true
       if (this.searchInterval != null) clearTimeout(this.searchInterval)
       this.searchMessage = 'Searching...'
-      this.$artifactsStore.resetArtifacts() // clear artifacts so the Searching... message is shown
+      this.$store.commit('artifacts/RESET_ARTIFACTS') // clear artifacts so the Searching... message is shown
       if (this.related && this.search.trim() === '') {
-        this.$artifactsStore.fetchRelatedArtifacts(this.artifact)
+        this.$store.dispatch('artifacts/fetchRelatedArtifacts', this.artifact)
       } else {
         let payload = {
           keywords: this.search,
@@ -385,7 +398,7 @@ export default defineComponent({
         this.advanced.sort_criteria ? (payload['sort'] = this.advanced.sort_criteria): false
         this.advanced.sort_type ? (payload['order'] = this.advanced.sort_type) :false
         this.owner ? (payload['owner'] = this.owner) : false
-        this.$artifactsStore.fetchArtifacts({ payload, advanced: this.advanced })
+        this.$store.dispatch('artifacts/fetchArtifacts', { payload, advanced: this.advanced })
       } 
       this.searchInterval = setTimeout(() => {
         if (!this.searchLoading) {
@@ -397,7 +410,7 @@ export default defineComponent({
     onChange() {
       this.searchMessage = ''
     },
-    toggleArtifactTypes() {
+    toggle() {
       this.$nextTick(() => {
         if (this.allArtifacts) {
           this.advanced.types = []
@@ -425,8 +438,7 @@ export default defineComponent({
       })
     },
     scrollToTop() {
-      document.body.scrollTop = 0; // For Safari
-      document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+      goTo(0)
     },
     handleScroll() {
       this.showScrollToTop = window.scrollY
@@ -459,7 +471,7 @@ export default defineComponent({
       }
     }
   }
-});
+}
 </script>
 
 <style scoped>

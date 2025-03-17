@@ -9,7 +9,7 @@
         <v-col cols="10">
           <v-card-title class="align-start">
             <div>
-              <span class="text-h5">{{
+              <span class="headline">{{
                 artifact.artifact.title
               }}</span>
             </div>
@@ -18,20 +18,20 @@
         <v-spacer></v-spacer>
         <v-col>
           <ArtifactChips
-            :modelValue="[artifact.artifact.type]"
+            :field="[artifact.artifact.type]"
             :type="artifact.artifact.type"
           ></ArtifactChips>
         </v-col>
       </v-row>
 
-      <span class="ml-4 text-grey-darken-2 font-weight-light text-caption">
+      <span class="ml-4 grey--text text--darken-2 font-weight-light caption">
         {{ artifact.num_reviews }}
         {{ artifact.num_reviews == 1 ? 'review' : 'reviews' }}
       </span>
       <v-rating
         v-model="artifact.avg_rating"
         color="amber"
-        density="compact"
+        dense
         half-increments
         readonly
         size="18"
@@ -64,7 +64,7 @@
 
         <v-spacer></v-spacer>
 
-        <v-btn color="primary" :to="`/artifact/${artifact.artifact.artifact_group_id}`" >
+        <v-btn color="primary" :to="`/artifact/${artifact.artifact.artifact_group_id}`" nuxt>
           Read More
         </v-btn>
       </v-card-actions>
@@ -74,17 +74,14 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
 import clip from 'text-clipper'
-import { mapState } from 'pinia'
-import { userStore } from '~/stores/user'
-import { artifactsStore } from '~/stores/artifacts'
+import { mapState } from 'vuex'
 import { artifactIcon, artifactColor } from '@/helpers'
 
-export default defineComponent({
+export default {
   components: {
-    SingleComment: defineAsyncComponent(() => import('@/components/SingleComment')),
-    ArtifactChips: defineAsyncComponent(() => import('@/components/ArtifactChips'))
+    SingleComment: () => import('@/components/SingleComment'),
+    ArtifactChips: () => import('@/components/ArtifactChips')
   },
   props: {
     artifact: {
@@ -112,8 +109,10 @@ export default defineComponent({
     }, 5000)
   },
   computed: {
-    ...mapState(userStore, ['userid']),
-    ...mapState(artifactsStore, ['favorites']),
+    ...mapState({
+      userid: state => state.user.userid,
+      favorites: state => state.artifacts.favoritesIDs
+    }),
     sanitizedDescription: function() {
       let description = ''
       description = this.artifact.artifact.description
@@ -130,16 +129,22 @@ export default defineComponent({
       },
       set(value) {
         if (value)
-          this.$artifactsStore.addFavorite(this.artifact.artifact.artifact_group_id)
+          this.$store.commit(
+            'artifacts/ADD_FAVORITE',
+            this.artifact.artifact.artifact_group_id
+          )
         else
-          this.$artifactsStore.removeFavorite(this.artifact.artifact.artifact_group_id)
+          this.$store.commit(
+            'artifacts/REMOVE_FAVORITE',
+            this.artifact.artifact.artifact_group_id
+          )
       }
     },
     commentsReordered() {
       let first = []
       let rest = []
       for (let comment of this.comments) {
-        if (comment.review.reviewer.id === this.$artifactsStore.userid) first.push(comment)
+        if (comment.review.reviewer.id === this.userid) first.push(comment)
         else rest.push(comment)
       }
       return first.concat(rest)
@@ -148,7 +153,7 @@ export default defineComponent({
   methods: {
     async favoriteThis() {
       if (!this.$auth.loggedIn) {
-        navigateTo('/login')
+        this.$router.push('/login')
       } else {
         let action = !this.favorite
         this.favorite = !this.favorite
@@ -167,5 +172,5 @@ export default defineComponent({
       return artifactIcon(type)
     }
   }
-});
+}
 </script>

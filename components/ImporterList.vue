@@ -13,11 +13,10 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
-
-export default defineComponent({
+export default {
   components: {
-    ImporterView: defineAsyncComponent(() => import('@/components/ImporterView')),
+    ImporterView: () => import('@/components/ImporterView'),
+    LazyHydrate: () => import('vue-lazy-hydration')
   },
   props: {
     importers: {
@@ -25,5 +24,5 @@ export default defineComponent({
       required: true
     }
   }
-});
+}
 </script>

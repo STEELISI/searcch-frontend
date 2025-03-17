@@ -1,5 +1,5 @@
 <template>
-  <v-app theme="dark">
+  <v-app dark>
     <h1> {{ errTitle }} </h1>
     <h2 v-if="error.message">
       {{ error.message }}
@@ -23,9 +23,7 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
-
-export default defineComponent({
+export default {
   layout: 'empty',
   props: {
     error: {
@@ -34,7 +32,7 @@ export default defineComponent({
     }
   },
   components: {
-    PrettyPrint: defineAsyncComponent(() => import('@/components/pretty-print')),
+    PrettyPrint: () => import('@/components/pretty-print'),
   },
   computed: {
     isNotFound() {
@@ -49,7 +47,7 @@ export default defineComponent({
       if (this.error.statusCode >= 500) {
         window.history.go(0);
       } else {
-        navigateTo('/');
+        this.$router.push('/');
       }
     }
   },
@@ -60,7 +58,7 @@ export default defineComponent({
       this.error.response.data.message.includes('session token')
     ) {
       console.log('session token')
-      this.$userStore.logout()
+      this.$store.commit('user/LOGOUT')
       this.$auth.logout()
 
       // auto log them back in
@@ -69,7 +67,7 @@ export default defineComponent({
       this.$auth.loginWith(strategy)
     }
   }
-});
+}
 </script>
 
 <style scoped>

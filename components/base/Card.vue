@@ -1,8 +1,8 @@
 <script>
-import { VCard } from 'vuetify/components';
+import { VCard } from 'vuetify/lib';
 
-export default defineComponent({
+export default {
 	name: 'BaseCard',
 	extends: VCard,
-});
+};
 </script>

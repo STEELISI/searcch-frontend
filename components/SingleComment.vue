@@ -8,7 +8,7 @@
           v-model="rating"
           v-if="!editing"
           color="amber"
-          density="compact"
+          dense
           readonly
           size="18"
           class="ml-3"
@@ -21,7 +21,7 @@
         v-if="editing"
         label="Rating"
         color="amber"
-        density="compact"
+        dense
         hover
         size="24"
         class="ml-3"
@@ -53,7 +53,7 @@
       <v-btn color="error" @click="deleteReview()" v-if="!editing">
         Delete
       </v-btn>
-      <v-btn variant="text" color="error" @click="editing = false" v-if="editing">
+      <v-btn text color="error" @click="editing = false" v-if="editing">
         Cancel
       </v-btn>
     </v-card-actions>
@@ -61,10 +61,12 @@
   <v-card v-else>Loading...</v-card>
 </template>
 <script>
-import { mapState } from 'pinia'
-import { userStore } from '~/stores/user'
+import { mapState } from 'vuex'
 
-export default defineComponent({
+export default {
+  components: {
+    LazyHydrate: () => import('vue-lazy-hydration')
+  },
   props: {
     comment: {
       type: Object,
@@ -79,9 +81,9 @@ export default defineComponent({
     }
   },
   computed: {
-    ...mapState(userStore, {
-      userid: state => state.userid,
-      username: state => state.username
+    ...mapState({
+      userid: state => state.user.userid,
+      username: state => state.user.username
     }),
     name() {
       return this.comment.review.reviewer.person.name
@@ -112,7 +114,7 @@ export default defineComponent({
       }
       // FIXME: backend API
       await this.$reviewsEndpoint.post(this.$route.params.id, comment_payload)
-      this.$artifactsStore.fetchArtifact( {
+      this.$store.dispatch('artifacts/fetchArtifact', {
         artifact_group_id: this.$route.params.id
       })
     },
@@ -123,12 +125,12 @@ export default defineComponent({
         reviewid: this.id
       }
       await this.$reviewsEndpoint.remove(this.$route.params.id, comment_payload)
-      this.$artifactsStore.fetchArtifact( {
+      this.$store.dispatch('artifacts/fetchArtifact', {
         artifact_group_id: this.$route.params.id
       })
     }
   }
-});
+}
 </script>
 <style scoped>
 pre {

@@ -1,15 +1,15 @@
 <template>
-  <v-main class="bg-grey-lighten-3">
+  <v-main class="grey lighten-3">
     <div id="core-view">
       <v-fade-transition mode="out-in">
-        <slot/>
+        <nuxt></nuxt>
       </v-fade-transition>
     </div>
   </v-main>
 </template>
 
 <script>
-export default defineComponent({
+export default {
   name: 'CoreView'
-});
+}
 </script>

@@ -20,21 +20,21 @@
     </v-row>
     <v-row align="center" class="mx-0">
       <span>
-        <b>{{$filters.titlecase( this.curation.opdata.op ) }}</b>
+        <b>{{ this.curation.opdata.op | titlecase }}</b>
         ({{ this.curation.opdata.obj }}{{ this.curation.opdata.op === 'set'
                                           ? "." + this.curation.opdata.data.field : "" }}): 
       </span>
       <span v-if="opIsSetField">
         <v-row align="center">
         <ArtifactChips
-          :modelValue="[this.curation.opdata.data.value]"
+          :field="[this.curation.opdata.data.value]"
           type="field"
           align="center"
         ></ArtifactChips>
         previous:
         <ArtifactChips
           :v-if="this.curation.opdata.data.old_value !== 'undefined'"
-          :modelValue="[this.curation.opdata.data.old_value]"
+          :field="[this.curation.opdata.data.old_value]"
           type="field"
         ></ArtifactChips>
         </v-row>
@@ -49,13 +49,13 @@
       </span>
       <span v-else-if="opIsTag">
         <ArtifactChips
-          :modelValue="[this.curation.opdata.data.value.tag]"
+          :field="[this.curation.opdata.data.value.tag]"
           type="keyword"
         ></ArtifactChips>
       </span>
       <span v-else-if="opIsAffiliation">
         <ArtifactChips
-          :modelValue="[this.curation.opdata.data.value]"
+          :field="[this.curation.opdata.data.value]"
           type="role"
         ></ArtifactChips>
       </span>
@@ -64,9 +64,8 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
 
-export default defineComponent({
+export default {
   props: {
     curation: {
       type: Object,
@@ -87,7 +86,7 @@ export default defineComponent({
     },
   },
   components: {
-    ArtifactChips: defineAsyncComponent(() => import('@/components/ArtifactChips'))
+    ArtifactChips: () => import('@/components/ArtifactChips')
   },
   computed: {
     opIsSetField: function() {
@@ -113,5 +112,5 @@ export default defineComponent({
       return typeof item === 'object'
     },
   }
-});
+}
 </script>

@@ -21,7 +21,7 @@ services:
   searcch-frontend-prod:
     image: searcch-frontend-production
     restart: unless-stopped
-    build: "https://${TOKEN:-githubapitoken}:@github.com/ITI/searcch.git"
+    build: .
     ports:
       - 127.0.0.1:3000:3000
     container_name: searcch-frontend-prod

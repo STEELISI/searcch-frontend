@@ -8,17 +8,15 @@
 </template>
 
 <script>
-import { defineAsyncComponent } from 'vue'
-
-export default defineComponent({
+export default {
   data: () => ({
     drawer: null
   }),
   components: {
-    CoreDrawer: defineAsyncComponent(() => import('@/components/core/Drawer')),
-    CoreFooter: defineAsyncComponent(() => import('@/components/core/Footer')),
-    CoreAppBar: defineAsyncComponent(() => import('@/components/core/AppBar')),
-    CoreView: defineAsyncComponent(() => import('@/components/core/View'))
+    CoreDrawer: () => import('@/components/core/Drawer'),
+    CoreFooter: () => import('@/components/core/Footer'),
+    CoreAppBar: () => import('@/components/core/AppBar'),
+    CoreView: () => import('@/components/core/View')
   }
-});
+}
 </script>

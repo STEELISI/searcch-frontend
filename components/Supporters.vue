@@ -2,7 +2,7 @@
   <LazyHydrate never>
     <div>
       <v-card elevation="1">
-        <v-card-title class="bg-primary text-white">
+        <v-card-title class="primary white--text">
           <span class="text-h6">Supporters</span>
         </v-card-title>
         <v-card-text>
@@ -22,6 +22,9 @@
 </template>
 
 <script>
-export default defineComponent({
-});
+export default {
+  components: {
+    LazyHydrate: () => import('vue-lazy-hydration'),
+  },
+}
 </script>

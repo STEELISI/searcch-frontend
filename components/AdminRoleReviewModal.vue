@@ -68,7 +68,7 @@
                   Rejection Reason
               </div>
               <div>
-                <textarea v-model="rejectionMessageData" placeholder="Enter your rejection reason" id="rejectionMessageTextArea"></textarea>
+                <textarea v-model="rejectionMessage" placeholder="Enter your rejection reason" id="rejectionMessageTextArea"></textarea>
               </div>
           </div>
           
@@ -126,7 +126,7 @@
 </template>
 
 <script>
-  export default defineComponent({
+  export default {
     name: 'AdminRoleReviewModal',
     props: ['claimid', 'justificationMessage', 'userDetails', 'artifactDetails', 'isReject', 'rejectionMessage'],
     methods: {
@@ -143,15 +143,15 @@
       },
       reviewRole(approve) {
         if(!approve) {
-          this.rejectionMessageData = this.rejectionMessageData.trim();
-          if(this.rejectionMessageData == "") {
+          this.rejectionMessage = this.rejectionMessage.trim();
+          if(this.rejectionMessage == "") {
             this.isError = true;
             this.errorMessage = "Please enter a rejection reason";
             return;
           }
         }
         this.isError = false;
-        this.$emit('closeAndReview', approve, this.rejectionMessageData);
+        this.$emit('closeAndReview', approve, this.rejectionMessage);
       }
     },
     data() {
@@ -166,18 +166,10 @@
               {text: 'Artifact', sortable: false, value: 'name'}
             ],
             errorMessage: "",
-            isError: false,
-            rejectionMessageData: ""
+            isError: false
         }
-    },
-    watch: {
-      rejectionMessage: (oldVal, newVal) => {
-        if (oldVal !== newVal) {
-          this.rejectionMessageData = this.rejectionMessage;
-        }
-      }
     }
-  });
+  };
 </script>
 
 <style>
