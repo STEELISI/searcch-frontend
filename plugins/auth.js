@@ -1,4 +1,4 @@
-export default function({ $loginEndpoint, store, $auth }) {
+export default function ({ $loginEndpoint, store, $auth }) {
   var validUsers = [
     'timyardley',
     'jelenamirkovic',
@@ -16,14 +16,21 @@ export default function({ $loginEndpoint, store, $auth }) {
     // if (!validUsers.includes($auth.user.login.toLowerCase())) {
     //   $auth.logout('github')
     // } else {
+    $auth.onError(function (error, payload) { console.log("auth error: ", error, payload) })
+
+    let strategy = $auth.$storage.getUniversal('strategy')
+    if (strategy === "googlecustom") {
+      strategy = "google"
+    }
     let payload = {
-      strategy: 'github',
-      token: $auth.getToken('github')
+      strategy: strategy,
+      token: $auth.strategy.token.get()
     }
     $loginEndpoint
       .create(payload)
       .then(response => {
         if (typeof response !== 'undefined' && response.userid >= 0) {
+          document.cookie = `session_id=${payload.token}`;
           store.commit('user/SET_USER_TOKEN', payload.token)
           store.commit('user/SET_USER', response.person)
           store.commit('user/SET_USERID', response.userid)
