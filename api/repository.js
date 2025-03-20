@@ -105,9 +105,8 @@ export default $axios => (resource, error) => ({
       $nuxt.error(e)
     })
   },
-  put(payload, ...args) {
-    let complete_path = [resource, ...args].join('/');
-    return $axios.$put(`${complete_path}`, payload).catch(function(e) {
+  put(payload) {
+    return $axios.$put(`${resource}`, payload).catch(function(e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -128,9 +127,16 @@ export default $axios => (resource, error) => ({
     })
   },
   // FIXME: backend API
-  post(id, payload) {
-    let idstr = !id ? '' : (Array.isArray(id) ? '/' + id.join('/') : '/' + id)
-    return $axios.$post(`${resource}${idstr}`, payload).catch(function(e) {
+  post(id, payload, type=null) {
+    const headers = null;
+    if(type) {
+      headers = { 'Content-Type': 'multipart/form-data' };
+    }
+    let args = [`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload];
+    if(type) {
+      args.push({ headers });
+    }
+    return $axios.$post(...args).catch(function(e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx

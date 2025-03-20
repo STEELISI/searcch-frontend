@@ -10,10 +10,29 @@ export default (ctx, inject) => {
   // artifact retrieval
   inject('artifactEndpoint', repositoryWithAxios('kg/' + 'artifact'))
 
+  // artifact request
+  inject('artifactRequestEndpoint', repositoryWithAxios('kg/' + 'artifact/request'))
+
+  inject('artifactRequestCartEndpoint', repositoryWithAxios('kg/' + 'artifact/requestCart'))
+
+  inject('artifactRequestStatusEndpoint', repositoryWithAxios('kg/' + 'artifact/status'))
+
+  inject('artifactRequestListEndpoint', repositoryWithAxios('kg/' + 'artifact/requestList'))
+
+  inject('artifactContributeEndpoint', repositoryWithAxios('kg/' + 'artifact/contribute'))
+
   // artifact searching
   inject(
     'artifactSearchEndpoint',
     repositoryWithAxios('kg/' + 'artifact/search')
+  )
+
+  // artifact categories
+  inject( 'artifactCategoriesEndpoint' , repositoryWithAxios('kg/' + 'artifact/categories'))
+
+  inject(
+    'artifactRecommendationEndpoint',
+    repositoryWithAxios('kg/' + 'artifact/recommendation')
   )
 
   // imports array view/add API
@@ -32,6 +51,12 @@ export default (ctx, inject) => {
   inject(
     'relationshipEndpoint',
     repositoryWithAxios('kg/' + 'artifact/relationship')
+  )
+
+  // compare artifacts
+  inject(
+    'artifactCompareEndpoint',
+    repositoryWithAxios('kg/' + 'artifact/compare')
   )
 
   // badges
@@ -76,6 +101,14 @@ export default (ctx, inject) => {
     repositoryWithAxios('kg/' + 'user/affiliation')
   )
 
+  // user affiliations
+  inject(
+    'userPositionEndpoint',
+    repositoryWithAxios('kg/' + 'user/affiliations')
+  )
+
+
+
   // organization API
   inject('organizationEndpoint', repositoryWithAxios('kg/' + 'organizations'))
 
@@ -96,4 +129,19 @@ export default (ctx, inject) => {
 
   // sessions index API
   inject('sessionsEndpoint', repositoryWithAxios('kg/' + 'sessions'))
+
+  // dua API
+  inject('duaEndpoint', repositoryWithAxios('kg/' + 'dua'))
+  inject('duaPreviewEndpoint', repositoryWithAxios('kg/'+'dua_preview'))
+
+  //provider API
+  inject('providerEndpoint', repositoryWithAxios('kg/' + 'provider'))
+
+  inject('providerCollectionEndpoint', repositoryWithAxios('kg/' + 'provider_collection'))
+  // labels API
+  inject('labelEndpoint', repositoryWithAxios('kg/' + 'labels'))
+
+  inject('adminStatisticsEndpoint', repositoryWithAxios('kg/' + 'adminStats'))
+
+  inject('providerPermissionsList', repositoryWithAxios('kg/' + 'provider_permissions_list'))
 }
