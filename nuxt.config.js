@@ -1,5 +1,6 @@
+console.log('HELLO KG_API_KEY!!!!:', process.env.KG_API_KEY)
 export default {
- dir: {
+  dir: {
     public: 'static',
   },
   /*	
@@ -126,7 +127,7 @@ export default {
               "'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net"
             ],
             connectSrc: [
-              "'self' https://api.github.com https://cilogon.org https://www.gravatar.com"
+              "'self' https://api.github.com https://cilogon.org https://www.gravatar.com https://hub-api.cyberexperimentation.org"
             ],
             // asterisk here due to badge images
             imgSrc: [
@@ -165,14 +166,14 @@ export default {
       target: process.env.BACKEND_URL
         ? process.env.BACKEND_URL
         : process.env.PRODUCTION == 'true'
-        ? 'https://hub-api.cyberexperimentation.org/v1' // production backend
-        : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backend
+          ? 'https://hub-api.cyberexperimentation.org/v1' // production backend
+          : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backend
       pathRewrite: { '^/kg/': '/' },
       headers: {
-        'X-Api-Key': 
-            process.env.PRODUCTION == 'true'
+        'X-Api-Key':
+          process.env.PRODUCTION == 'true'
             ? process.env.KG_API_KEY
-            : process.env.KG_API_KEY 
+            : process.env.KG_API_KEY
       },
       changeOrigin: true
     },
@@ -209,7 +210,7 @@ export default {
    */
   build: {
     extractCSS: true,
-    extend(config, ctx) {},
+    extend(config, ctx) { },
     transpile: [/^vuetify/]
   },
   router: {
