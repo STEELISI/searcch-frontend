@@ -1,7 +1,7 @@
 var qs = require('qs')
 // Provide nuxt-axios instance to use same configuration across the whole project
 // I've used typical CRUD method names and actions here
-export default $axios => (resource, error) => ({
+export default ($axios, $config) => (resource, error) => ({
   index(payload) {
     return $axios
       .$get(`${resource}`, {
