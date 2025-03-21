@@ -1,5 +1,8 @@
 console.log('HELLO KG_API_KEY!!!!:', process.env.KG_API_KEY)
 export default {
+  publicRuntimeConfig: {
+    kgApiKey: process.env.KG_API_KEY,
+  },
   dir: {
     public: 'static',
   },
