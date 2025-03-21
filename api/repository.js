@@ -63,11 +63,7 @@ export default ($axios, $config) => (resource, error) => ({
   },
 
   create(payload) {
-    return $axios.$post(`${resource}`, payload, {
-      headers: {
-        'X-Api-Key': $config.kgApiKey
-      }
-    }).catch(function (e) {
+    return $axios.$post(`${resource}`, payload).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx

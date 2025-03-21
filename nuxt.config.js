@@ -178,10 +178,6 @@ export default {
       headers: {
         'X-Api-Key': process.env.KG_API_KEY
       },
-      // Use onProxyReq to enforce header injection
-      onProxyReq: (proxyReq, req, res) => {
-        proxyReq.setHeader('X-Api-Key', process.env.KG_API_KEY);
-      },
       changeOrigin: true
     },
     '/avatar/': { target: 'https://www.gravatar.com/' }
