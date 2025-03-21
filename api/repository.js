@@ -64,9 +64,9 @@ export default $axios => (resource, error) => ({
 
   create(payload) {
     return $axios.$post(`${resource}`, payload, {
-      onUploadProgress: (progressEvent) => {
-        console.log('Request Headers:', progressEvent.config?.headers || {});
-      },
+      headers: {
+        'X-Api-Key': $config.kgApiKey
+      }
     }).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
