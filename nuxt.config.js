@@ -176,10 +176,7 @@ export default {
           : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backend
       pathRewrite: { '^/kg/': '/' },
       headers: {
-        'X-Api-Key':
-          process.env.PRODUCTION == 'true'
-            ? process.env.KG_API_KEY
-            : process.env.KG_API_KEY
+        'X-Api-Key': process.env.KG_API_KEY
       },
       changeOrigin: true
     },
