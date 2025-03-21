@@ -6,11 +6,11 @@ export default $axios => (resource, error) => ({
     return $axios
       .$get(`${resource}`, {
         params: payload,
-        paramsSerializer: function(params) {
+        paramsSerializer: function (params) {
           return qs.stringify(params, { arrayFormat: 'repeat' })
         }
       })
-      .catch(function(e) {
+      .catch(function (e) {
         if (e.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
@@ -36,12 +36,12 @@ export default $axios => (resource, error) => ({
     if (params) {
       rparams = {
         params: params,
-        paramsSerializer: function(params) {
+        paramsSerializer: function (params) {
           return qs.stringify(params, { arrayFormat: 'repeat' })
         }
       }
     }
-    return $axios.$get(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, rparams).catch(function(e) {
+    return $axios.$get(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, rparams).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -63,7 +63,11 @@ export default $axios => (resource, error) => ({
   },
 
   create(payload) {
-    return $axios.$post(`${resource}`, payload).catch(function(e) {
+    return $axios.$post(`${resource}`, payload, {
+      onUploadProgress: (progressEvent) => {
+        console.log('Request Headers:', progressEvent.config?.headers || {});
+      },
+    }).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -85,7 +89,7 @@ export default $axios => (resource, error) => ({
   },
 
   update(id, payload) {
-    return $axios.$put(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload).catch(function(e) {
+    return $axios.$put(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -106,7 +110,7 @@ export default $axios => (resource, error) => ({
     })
   },
   put(payload) {
-    return $axios.$put(`${resource}`, payload).catch(function(e) {
+    return $axios.$put(`${resource}`, payload).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -127,16 +131,16 @@ export default $axios => (resource, error) => ({
     })
   },
   // FIXME: backend API
-  post(id, payload, type=null) {
+  post(id, payload, type = null) {
     const headers = null;
-    if(type) {
+    if (type) {
       headers = { 'Content-Type': 'multipart/form-data' };
     }
     let args = [`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload];
-    if(type) {
+    if (type) {
       args.push({ headers });
     }
-    return $axios.$post(...args).catch(function(e) {
+    return $axios.$post(...args).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -157,7 +161,7 @@ export default $axios => (resource, error) => ({
     })
   },
   delete(id) {
-    return $axios.$delete(`${resource}/${Array.isArray(id) ? id.join('/') : id}`).catch(function(e) {
+    return $axios.$delete(`${resource}/${Array.isArray(id) ? id.join('/') : id}`).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -183,7 +187,7 @@ export default $axios => (resource, error) => ({
       .$delete(`${resource}/${id}`, {
         params: payload
       })
-      .catch(function(e) {
+      .catch(function (e) {
         if (e.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
