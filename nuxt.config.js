@@ -169,11 +169,8 @@ export default {
   },
   proxy: {
     '/kg/': {
-      target: process.env.BACKEND_URL
-        ? process.env.BACKEND_URL
-        : process.env.PRODUCTION == 'true'
-          ? 'https://hub-api.cyberexperimentation.org/v1' // production backend
-          : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backend
+      target: 'https://hub-api.cyberexperimentation.org/v1',
+
       pathRewrite: { '^/kg/': '/' },
       headers: {
         'X-Api-Key': process.env.KG_API_KEY
