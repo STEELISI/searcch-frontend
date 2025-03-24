@@ -1,4 +1,3 @@
-console.log('HELLO KG_API_KEY!!!!:', process.env.KG_API_KEY)
 export default {
   publicRuntimeConfig: {
     kgApiKey: process.env.KG_API_KEY,
@@ -169,7 +168,7 @@ export default {
   },
   proxy: {
     '/kg/': {
-      target: 'https://hub-api.cyberexperimentation.org/v1',
+      target: process.env.BACKEND_URL,
 
       pathRewrite: { '^/kg/': '/' },
       headers: {
