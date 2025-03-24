@@ -1,16 +1,16 @@
 var qs = require('qs')
 // Provide nuxt-axios instance to use same configuration across the whole project
 // I've used typical CRUD method names and actions here
-export default $axios => (resource, error) => ({
+export default ($axios, $config) => (resource, error) => ({
   index(payload) {
     return $axios
       .$get(`${resource}`, {
         params: payload,
-        paramsSerializer: function(params) {
+        paramsSerializer: function (params) {
           return qs.stringify(params, { arrayFormat: 'repeat' })
         }
       })
-      .catch(function(e) {
+      .catch(function (e) {
         if (e.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx
@@ -36,12 +36,12 @@ export default $axios => (resource, error) => ({
     if (params) {
       rparams = {
         params: params,
-        paramsSerializer: function(params) {
+        paramsSerializer: function (params) {
           return qs.stringify(params, { arrayFormat: 'repeat' })
         }
       }
     }
-    return $axios.$get(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, rparams).catch(function(e) {
+    return $axios.$get(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, rparams).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -63,7 +63,7 @@ export default $axios => (resource, error) => ({
   },
 
   create(payload) {
-    return $axios.$post(`${resource}`, payload).catch(function(e) {
+    return $axios.$post(`${resource}`, payload).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -85,7 +85,7 @@ export default $axios => (resource, error) => ({
   },
 
   update(id, payload) {
-    return $axios.$put(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload).catch(function(e) {
+    return $axios.$put(`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -105,9 +105,8 @@ export default $axios => (resource, error) => ({
       $nuxt.error(e)
     })
   },
-  put(payload, ...args) {
-    let complete_path = [resource, ...args].join('/');
-    return $axios.$put(`${complete_path}`, payload).catch(function(e) {
+  put(payload) {
+    return $axios.$put(`${resource}`, payload).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -128,9 +127,16 @@ export default $axios => (resource, error) => ({
     })
   },
   // FIXME: backend API
-  post(id, payload) {
-    let idstr = !id ? '' : (Array.isArray(id) ? '/' + id.join('/') : '/' + id)
-    return $axios.$post(`${resource}${idstr}`, payload).catch(function(e) {
+  post(id, payload, type = null) {
+    const headers = null;
+    if (type) {
+      headers = { 'Content-Type': 'multipart/form-data' };
+    }
+    let args = [`${resource}/${Array.isArray(id) ? id.join('/') : id}`, payload];
+    if (type) {
+      args.push({ headers });
+    }
+    return $axios.$post(...args).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -151,7 +157,7 @@ export default $axios => (resource, error) => ({
     })
   },
   delete(id) {
-    return $axios.$delete(`${resource}/${Array.isArray(id) ? id.join('/') : id}`).catch(function(e) {
+    return $axios.$delete(`${resource}/${Array.isArray(id) ? id.join('/') : id}`).catch(function (e) {
       if (e.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -177,7 +183,7 @@ export default $axios => (resource, error) => ({
       .$delete(`${resource}/${id}`, {
         params: payload
       })
-      .catch(function(e) {
+      .catch(function (e) {
         if (e.response) {
           // The request was made and the server responded with a status code
           // that falls out of the range of 2xx

@@ -1,5 +1,5 @@
 export default {
- dir: {
+  dir: {
     public: 'static',
   },
   /*	
@@ -165,14 +165,12 @@ export default {
       target: process.env.BACKEND_URL
         ? process.env.BACKEND_URL
         : process.env.PRODUCTION == 'true'
-        ? 'https://hub-api.cyberexperimentation.org/v1' // production backend
-        : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backend
+          ? 'https://hub-api.cyberexperimentation.org/v1' // production backend
+          : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backendtarget: process.env.BACKEND_URL,
+
       pathRewrite: { '^/kg/': '/' },
       headers: {
-        'X-Api-Key': 
-            process.env.PRODUCTION == 'true'
-            ? process.env.KG_API_KEY
-            : process.env.KG_API_KEY 
+        'X-Api-Key': process.env.KG_API_KEY
       },
       changeOrigin: true
     },
@@ -209,7 +207,7 @@ export default {
    */
   build: {
     extractCSS: true,
-    extend(config, ctx) {},
+    extend(config, ctx) { },
     transpile: [/^vuetify/]
   },
   router: {
