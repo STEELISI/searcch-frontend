@@ -1,10 +1,4 @@
 export default {
-  publicRuntimeConfig: {
-    kgApiKey: process.env.KG_API_KEY,
-  },
-  privateRuntimeConfig: {
-    kgApiKey: process.env.KG_API_KEY,
-  },
   dir: {
     public: 'static',
   },
