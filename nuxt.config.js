@@ -126,7 +126,7 @@ export default {
               "'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net"
             ],
             connectSrc: [
-              "'self' https://api.github.com https://cilogon.org https://www.gravatar.com https://hub-api.cyberexperimentation.org"
+              "'self' https://api.github.com https://cilogon.org https://www.gravatar.com"
             ],
             // asterisk here due to badge images
             imgSrc: [
@@ -162,7 +162,11 @@ export default {
   },
   proxy: {
     '/kg/': {
-      target: process.env.BACKEND_URL,
+      target: process.env.BACKEND_URL
+        ? process.env.BACKEND_URL
+        : process.env.PRODUCTION == 'true'
+          ? 'https://hub-api.cyberexperimentation.org/v1' // production backend
+          : 'https://hub-dev-api.cyberexperimentation.org/v1', // development backendtarget: process.env.BACKEND_URL,
 
       pathRewrite: { '^/kg/': '/' },
       headers: {
