@@ -9,7 +9,7 @@
     </v-layout>
     <v-layout column justify-left align-top>
       <v-row class="ml-1 mb-2"
-        ><h1>Artifact Import</h1>
+        ><h1>Import</h1>
         <v-dialog transition="dialog-bottom-transition" max-width="600">
           <template v-slot:activator="{ on, attrs }">
             <v-btn class="primary ml-4" fab small v-bind="attrs" v-on="on"
@@ -22,32 +22,29 @@
               <v-card-text>
                 <div class="text-h6 pa-12">
                   <p>
-                    Artifacts published on GitHub, ACM digital library, IEEE
-                    Xplore, USENIX web site publication, arXiv, Papers With
-                    Code, Zenodo, and generic git repositories can be processed
-                    using our import assistant. All other artifact sources must
-                    be manually processed.
+                    To start importing, place the URL of an artifact in the
+                    input field and click Start Import.
+                  </p>
+                  <p></p>
+                  <p>
+                    Once an import has started, it will show up in your imports
+                    list, below the URL field.
                   </p>
                   <p>
-                    To start the import assistant, type the URL of an artifact
-                    in the input field and click START IMPORT.
+                    The importer will have to process through a few stages to
+                    get all of the information scraped and formatted properly.
+                    Once the progress bar shows the process is complete, you
+                    will have the option to view the imported artifact by
+                    clicking Read More.
                   </p>
                   <p>
-                    When the import processing starts, it will show up in your
-                    imports list below the URL field.
+                    We have provided an edit button to all you to edit the
+                    automated import details.
                   </p>
                   <p>
-                    The import assistant works in multiple stages to scrape all
-                    of the information and format it properly. Once the progress
-                    bar shows the process is complete, you should review and
-                    correct the information (as needed) by clicking EDIT.
-                  </p>
-                  <p>
-                    When you are ready to make your artifact available in the
-                    catalog of searchable artifacts, click PUBLISH.
-                  </p>
-                  <p>
-                    Click ARCHIVE to hide a completed import from your list.
+                    Once you are ready to add your artifact to the list of
+                    searchable artifacts, you can click Publish. Press Archive
+                    to hide a completed import from your list.
                   </p>
                 </div>
               </v-card-text>
@@ -59,158 +56,36 @@
         </v-dialog>
       </v-row>
       <v-divider></v-divider><br />
-      <h2>Artifact Import Assistant</h2>
-      <p>
-        Supported artifact locations are: GitHub, ACM digital library, IEEE
-        Xplore, USENIX web site publication, arXiv, Papers With Code, Zenodo,
-        and openly-accessible generic git repositories.
-      </p>
-      <p>
-        Enter the supported URL for your artifact:
-      </p>
-      <v-form v-model="valid" ref="importform">
-        <v-row dense>
-          <v-col cols="10" class="ma-1 pa-1">
+      Enter the URL where your artifact is located.
+      <v-form v-model="valid">
+        <v-row>
+          <v-col cols="10">
             <v-text-field
               label="URL"
               v-model="url"
               placeholder="http://github.com/iti/project"
               outlined
-              hide-details="auto"
               :rules="[rules.required, rules.url]"
             ></v-text-field>
           </v-col>
-        </v-row>
-        <v-row align="center" dense>
-          <v-col cols="2" class="ma-1 pa-1">
+          <v-col cols="2">
             <v-btn
-              class="primary"
+              class="primary mt-2"
               :disabled="importing"
               @click="startImport()"
               block
               >Start Import</v-btn
             >
           </v-col>
-          <v-divider class="mx-4" vertical></v-divider>
-          <v-col class="ma-1 pa-1">
-            <v-tooltip
-              color="grey darken-4"
-              max-width="400px"
-              bottom
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <span v-on="on" v-bind="attrs">
-                  <v-checkbox
-                    class="ma-1 pa-1"
-                    label="Import candidates"
-                    v-model="autofollow"
-                    hide-details="auto"
-                    dense
-                    ></v-checkbox>
-                  </span>
-              </template>
-              <span>
-                If the initial import of the URL you enter suggests
-                additional, related <strong>candidate</strong> artifacts to
-                import, selecting this option will automatically import
-                those as artifacts, <strong>and</strong> create the
-                recommended relationships between them.
-              </span>
-            </v-tooltip>
-          </v-col>
-          <v-col class="ma-1 pa-1">
-            <v-tooltip
-              color="grey darken-4"
-              max-width="400px"
-              bottom
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <span v-on="on" v-bind="attrs">
-                  <v-checkbox
-                    class="ma-1 pa-1"
-                    label="Disable Extraction"
-                    v-model="noextract"
-                    hide-details="auto"
-                    dense
-                  ></v-checkbox>
-                </span>
-              </template>
-              <span>
-                If selected, disables potentially costly metadata extraction
-                (e.g. keyword extraction) from fetched artifact content.
-              </span>
-            </v-tooltip>
-          </v-col>
-          <v-col class="ma-1 pa-1">
-            <v-tooltip
-              color="grey darken-4"
-              max-width="400px"
-              bottom
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <span v-on="on" v-bind="attrs">
-                  <v-checkbox
-                    class="ma-1 pa-1"
-                    label="Disable Fetch"
-                    v-model="nofetch"
-                    hide-details="auto"
-                    dense
-                  ></v-checkbox>
-                </span>
-              </template>
-              <span>
-                If selected, disables retrieval of the artifact's content --
-                for instance, source code repositories and associated files
-                (e.g papers, presentations, etc).  If your artifact is a
-                fork of the Linux kernel, you might consider selecting this
-                box.
-              </span>
-            </v-tooltip>
-          </v-col>
-          <v-col class="ma-1 pa-1">
-            <v-tooltip
-              color="grey darken-4"
-              max-width="400px"
-              bottom
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <span v-on="on" v-bind="attrs">
-                  <v-checkbox
-                    v-if="user_is_admin"
-                    class="ma-1 pa-1"
-                    label="Disable Removal"
-                    v-model="noremove"
-                    hide-details="auto"
-                    dense
-                  ></v-checkbox>
-                </span>
-              </template>
-              <span>
-                If selected, disables removal of fetched content at the
-                importer service that performed the import.  This should
-                only be selected by administrators to facilitate debugging.
-              </span>
-            </v-tooltip>
-          </v-col>
-        </v-row>
-        <v-row>
         </v-row>
       </v-form>
       <br />
       <v-row class="ml-1 mb-2">
-        Artifacts stored on unsupported sources may be manually imported. &nbsp;
-        <NuxtLink to="/create">Click here</NuxtLink> &nbsp; to start a manual
-        import.
+        If you would like to enter your artifact information manually, please
+        &nbsp; <NuxtLink to="/create">click here.</NuxtLink>
       </v-row>
       <br /><v-divider></v-divider><br />
-      <h2>Imported Artifacts</h2>
       <ImportList v-if="imports.length" :imports="imports"></ImportList>
-      <v-pagination
-        v-if="imports.length"
-        v-model="page"
-        :length="pages"
-        circle
-      ></v-pagination>
       <div v-else>{{ loadingMessage }}</div>
     </v-layout>
   </span>
@@ -246,18 +121,13 @@ export default {
       dialog: false,
       valid: false,
       url: null,
-      nofetch: null,
-      noextract: null,
-      noremove: null,
-      autofollow: true,
       rules: {
         required: value => !!value || 'URL required',
         url: value => {
           let pattern = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g //https://regexr.com/3e6m0
           return pattern.test(value) || 'Invalid URL'
         }
-      },
-      page: 1
+      }
     }
   },
   async mounted() {
@@ -266,7 +136,6 @@ export default {
     this.timeoutID = setTimeout(() => {
       this.loadingMessage = 'No imports found'
       clearInterval(this.pollingID)
-      this.pollingID = null
     }, 5000)
     this.pollingID = setInterval(
       function() {
@@ -277,10 +146,7 @@ export default {
   },
   computed: {
     ...mapState({
-      imports: state => state.artifacts.imports.artifact_imports,
-      pages: state => state.artifacts.imports.pages,
-      total: state => state.artifacts.imports.total,
-      user_is_admin: state => state.user.user_is_admin
+      imports: state => state.artifacts.imports
     })
   },
   methods: {
@@ -288,13 +154,8 @@ export default {
       if (!this.valid) return
       this.importing = true
       let response = await this.$importsEndpoint.create({
-        url: this.url,
-        nofetch: this.nofetch,
-        noextract: this.noextract,
-        noremove: this.noremove,
-        autofollow: this.autofollow
+        url: this.url
       })
-      this.$refs.importform.reset()
       this.updateImports()
       clearInterval(this.pollingID)
       this.pollingID = setInterval(
@@ -304,42 +165,21 @@ export default {
         3000
       )
       this.url = undefined
-      this.nofetch = false
-      this.noextract = false
-      this.noremove = false
-      this.autofollow = true
       this.importing = false
     },
     updateImports() {
-      this.$store.dispatch('artifacts/fetchImports', { "page": this.page })
+      this.$store.dispatch('artifacts/fetchImports', {})
       if (
         !this.imports.some(m => m.status.match(/^(running|pending|scheduled)$/))
       ) {
         clearInterval(this.pollingID)
-        this.pollingID = null
       }
     }
   },
   beforeRouteLeave(to, from, next) {
     clearInterval(this.pollingID)
-    this.pollingID = null
     clearTimeout(this.timeoutID)
     next()
-  },
-  watch: {
-    page() {
-      this.updateImports()
-    },
-    imports() {
-      if (this.pollingID === null) {
-        this.pollingID = setInterval(
-          function() {
-            this.updateImports()
-          }.bind(this),
-          3000
-        )
-      }
-    }
   }
 }
 </script>
