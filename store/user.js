@@ -7,8 +7,10 @@ export const state = () => ({
   user_is_admin: false,
   organization: [],
   orgs: [],
+  badges: [],
   user_token: null,
-  interests: null
+  interests: null,
+  cart: []
 })
 
 export const getters = {
@@ -18,8 +20,14 @@ export const getters = {
   organization: state => {
     return state.organization
   },
+  position: state => {
+    return state.user.position
+  },
   orgs: state => {
     return state.orgs
+  },
+  badges: state => {
+    return state.badges
   },
   name: state => {
     return state.user.name
@@ -38,6 +46,9 @@ export const getters = {
   },
   interests: state => {
     return state.interests
+  },
+  cart: state => {
+    return state.cart
   }
 }
 
@@ -47,6 +58,7 @@ export const mutations = {
   },
   SET_NAME(state, name) {
     state.user.name = name
+    this.$auth.user.name = name
   },
   SET_WEBSITE(state, website) {
     state.user.website = website
@@ -72,20 +84,37 @@ export const mutations = {
   SET_ORGS(state, orgs) {
     state.orgs = orgs
   },
+  SET_BADGES(state, badges) {
+    state.badges = badges
+  },
   SET_INTERESTS(state, interests) {
     state.interests = interests
+  },
+  SET_POSITION(state, position) {
+    state.user.position = position
+  },
+  SET_MOBILE_NUMBER(state, mobileNumber) {
+    state.user.mobileNumber = mobileNumber
+  },
+  SET_COUNTRY_CODE(state, countyCode) {
+    state.user.countyCode = countyCode
   },
   LOGOUT(state) {
     state.user = null
     state.organization = []
     state.orgs = []
+    state.badges = []
     state.interests = null
     state.user_token = null
     state.userid = null
     state.user_is_admin = false
     state.user_can_admin = false
+
   },
-  ADMIN_OFF(state) {}
+  ADMIN_OFF(state) { },
+  SET_CART(state, cart) {
+    state.cart = cart ? JSON.parse((cart)) : [];
+  }
 }
 
 export const actions = {
@@ -93,12 +122,21 @@ export const actions = {
     let response = {}
     console.log('fetching user')
     response = await this.$userEndpoint.index()
+    // console.log('User fetched:',response)
     if (typeof response !== 'undefined' && response.user) {
       commit('SET_USER', response.user.person)
       commit('SET_USERID', response.user.id)
       commit('SET_USER_CAN_ADMIN', response.user.can_admin)
       commit('SET_USER_IS_ADMIN', response.user.is_admin)
       commit('SET_USER_ORGS', response.user.affiliations)
+      commit('SET_NAME', response.user.person.name)
+      commit('SET_CART', response.user.person.cart)
+    }
+
+    if (response.user.person && !response.user.person.emailAuthenticated && response.user.person.email) {
+      if (this.$router.currentRoute.path !== '/profile') {
+        this.$router.push('/profile');
+      }
     }
   },
   async setUserToken({ commit }, user_token) {
@@ -111,12 +149,26 @@ export const actions = {
     let response = {}
     console.log('fetching organizations')
     let payload = {
-      verified: 1,
       all: 1
     }
     response = await this.$organizationEndpoint.index(payload)
     if (typeof response !== 'undefined' && response.organizations) {
       commit('SET_ORGS', response.organizations)
+    }
+  },
+  async fetchBadges({ commit, state }) {
+    if (typeof state.badges === 'object' && state.badges.length > 0) {
+      return
+    }
+    let response = {}
+    console.log('fetching badges')
+    let payload = {
+      verified: 1,
+      all: 1
+    }
+    response = await this.$badgesEndpoint.index(payload)
+    if (typeof response !== 'undefined' && response.badges) {
+      commit('SET_BADGES', response.badges)
     }
   },
   async fetchInterests({ commit, state }) {
@@ -138,4 +190,6 @@ export const actions = {
     })
     dispatch('fetchUser')
   }
+
+
 }
