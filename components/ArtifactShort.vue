@@ -88,10 +88,10 @@
         <v-btn
           v-if="!related"
           color="primary"
-          :to="`/artifact/${artifact.id}`"
+          :to="`/artifact/${artifact.artifact_group_id}`"
           nuxt
         >
-          Read More
+          Read More 
         </v-btn>
         <v-btn
           v-else
@@ -173,12 +173,12 @@ export default {
     },
     favorite: {
       get() {
-        return this.favorites[this.artifact.id] ? true : false
+        return this.favorites[this.artifact.artifact_group_id] ? true : false
       },
       set(value) {
         if (value)
-          this.$store.commit('artifacts/ADD_FAVORITE', this.artifact.id)
-        else this.$store.commit('artifacts/REMOVE_FAVORITE', this.artifact.id)
+          this.$store.commit('artifacts/ADD_FAVORITE', this.artifact.artifact_group_id)
+        else this.$store.commit('artifacts/REMOVE_FAVORITE', this.artifact.artifact_group_id)
       }
     }
   },
@@ -191,9 +191,9 @@ export default {
         this.favorite = !this.favorite
         if (action) {
           // FIXME: backend API
-          await this.$favoritesEndpoint.post(this.artifact.id, {})
+          await this.$favoritesEndpoint.post(this.artifact.artifact_group_id, {})
         } else {
-          await this.$favoritesEndpoint.delete(this.artifact.id)
+          await this.$favoritesEndpoint.delete(this.artifact.artifact_group_id)
         }
       }
     },
