@@ -72,7 +72,7 @@
         <v-btn
           icon
           v-if="!related"
-          :to="`/artifact/review/${artifact.id}`"
+          :to="`/artifact/review/${artifact.artifact_group_id}`"
           nuxt
         >
           <v-icon>mdi-comment</v-icon>

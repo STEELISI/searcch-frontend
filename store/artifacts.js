@@ -136,7 +136,7 @@ export const actions = {
       related_artifact_id: payload.id,
       relation: payload.relation
     })
-    dispatch('fetchArtifact', { id: state.artifact.artifact.id })
+    dispatch('fetchArtifact', { id: state.artifact.artifact.artifact_group_id })
     commit('SET_LOADING', false)
   }
 }

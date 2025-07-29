@@ -248,7 +248,7 @@
           <v-icon>{{ favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
         </v-btn>
 
-        <v-btn icon :to="`/artifact/review/${record.artifact.id}`" nuxt>
+        <v-btn icon :to="`/artifact/review/${record.artifact.artifact_group_id}`" nuxt>
           <v-icon>mdi-comment</v-icon>
         </v-btn>
         <v-spacer></v-spacer>
@@ -256,7 +256,7 @@
           v-if="isOwner()"
           color="success"
           small
-          :to="`/artifact/${record.artifact.id}?edit=true`"
+          :to="`/artifact/${record.artifact.artifact_group_id}?edit=true`"
           nuxt
         >
           Edit
@@ -416,9 +416,9 @@ export default {
         this.favorite = !this.favorite
         if (action) {
           // FIXME: backend API
-          await this.$favoritesEndpoint.post(this.record.artifact.id, {})
+          await this.$favoritesEndpoint.post(this.record.artifact.artifact_group_id, {})
         } else {
-          await this.$favoritesEndpoint.delete(this.record.artifact.id)
+          await this.$favoritesEndpoint.delete(this.record.artifact.artifact_group_id)
         }
       }
     },
