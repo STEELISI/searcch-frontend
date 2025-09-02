@@ -135,7 +135,7 @@ export default {
           }
           // FIXME: backend API
           await this.$ratingsEndpoint.post(
-            this.artifact.artifact.id,
+            this.artifact.artifact.artifact_group_id,
             rating_payload
           )
           let comment_payload = {
@@ -143,7 +143,7 @@ export default {
           }
           // FIXME: backend API
           await this.$reviewsEndpoint.post(
-            this.artifact.artifact.id,
+            this.artifact.artifact.artifact_group_id,
             comment_payload
           )
           this.$store.dispatch('artifacts/fetchArtifact', {
